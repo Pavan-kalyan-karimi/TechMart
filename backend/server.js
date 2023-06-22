@@ -1,23 +1,19 @@
 import express from "express"
 import dotenv from "dotenv"
-import products from "./data/products.js"
+import connectDB from "./config/db.js"
+import { notFound, errorHandler } from "./middleware/errorMiddleware.js"
+import productRoutes from "./routes/productRoutes.js"
 dotenv.config()
+
+connectDB(); //connect to DB 
 
 const port = process.env.PORT || 5000
 
 const app = express()
 
-app.get("/", (req, res) => {
-    res.send("whassup")
-})
+app.use("/api/products", productRoutes)
 
-app.get("/api/products", (req, res) => {
-    res.json(products)
-})
-
-app.get("/api/products/:id", (req, res) => {
-
-    res.json(products.find((p) => p._id === req.params.id))
-})
+app.use(notFound)
+app.use(errorHandler)
 
 app.listen(port, console.log(`Server setup at ${process.env.NODE_ENV} mode at port ${port}`))
