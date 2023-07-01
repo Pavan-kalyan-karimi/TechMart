@@ -23,6 +23,7 @@ const CartScreen = () => {
     const checkOutHandler = () => {
         navigate("/login?redirect=/shipping")
     }
+    
   return (
     <Row>
       <Col md={8}>
