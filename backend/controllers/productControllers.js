@@ -5,11 +5,14 @@ import asyncHandler from "../middleware/asyncHandler.js"
 //route    GET /api/products
 //access   public 
 const getProducts = asyncHandler( async (req, res) => {
-    const pageSize = 2;
+    const pageSize = process.env.PAGINATION_LIMIT;
     const page = Number(req.query.pageNumber) || 1;
-    const count = await Product.countDocuments();
 
-    const products = await Product.find({}).limit(pageSize).skip(pageSize * (page - 1));
+    const keyword = req.query.keyword ? {name: {$regex: req.query.keyword, $options: 'i'}} : {};
+
+    const count = await Product.countDocuments({ ...keyword });
+
+    const products = await Product.find({ ...keyword }).limit(pageSize).skip(pageSize * (page - 1));
     res.json({
         products,
         page,
@@ -32,6 +35,20 @@ const getProductById = asyncHandler( async (req, res) => {
         throw new Error("product not found")
     }
 })
+
+
+
+//@desc    Get top rated products
+//route    GET /api/products/top
+//access   public 
+
+const getTopProducts = asyncHandler( async (req, res) => {
+    const products = await Product.find({}).sort({rating: -1}).limit(3);
+
+    res.status(200).json(products);
+    
+})
+
 
 
 //@desc    Create a product
@@ -135,4 +152,4 @@ const createProductReview = asyncHandler( async (req, res) => {
 });
 
 
-export {getProductById, getProducts, createProduct, updateProduct, deleteProduct, createProductReview}
+export {getProductById, getProducts, getTopProducts, createProduct, updateProduct, deleteProduct, createProductReview}
